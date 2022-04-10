@@ -1,7 +1,6 @@
 /* config-overrides.js */
 
 const webpack = require('webpack');
-const nodeExternals = require("webpack-node-externals");
 
 module.exports = function override(config) {
     const fallback = config.resolve.fallback || {};
@@ -14,7 +13,10 @@ module.exports = function override(config) {
         "https": require.resolve("https-browserify"),
         "os": require.resolve("os-browserify"),
         "timers": require.resolve("timers-browserify"),
-        "url": require.resolve("url")
+        "url": require.resolve("url"),
+        "util": require.resolve("util-browser"),
+        "querystring": require.resolve("querystring-es3"),
+        "events": require.resolve("events")
     })
     config.resolve.fallback = fallback;
     config.plugins = (config.plugins || []).concat([
@@ -23,5 +25,9 @@ module.exports = function override(config) {
             Buffer: ['buffer', 'Buffer']
         })
     ]);
+    config.experiments = {
+        asyncWebAssembly: true,
+        topLevelAwait: true
+    };
     return config;
 }

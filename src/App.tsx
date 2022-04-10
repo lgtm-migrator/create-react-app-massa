@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
+import massa from './massa_logo.png'
 import {ClientFactory, INodeStatus, IAccount, DefaultProviderUrls} from "massa-web3";
 
 const baseAccount = {
@@ -29,10 +30,30 @@ function App() {
     getNodeStatusAsync();
   }, []);
 
+  const getNodeOverview = (nodeStatus?: TNodeStatus): JSX.Element => {
+    if (!nodeStatus) {
+      return <React.Fragment>"Getting Massa's Node Status..."</React.Fragment>;
+    }
+    return (<React.Fragment>
+      Massa Net Version: {nodeStatus?.version}
+      <br />
+      Massa Net Node Id: {nodeStatus?.node_id}
+      <br />
+      Massa Net Node Ip: {nodeStatus?.node_ip}
+      <br />
+      Massa Net Time:    {nodeStatus?.current_time}
+      <br />
+      Massa Net Cycle: {nodeStatus?.current_cycle}
+      <br />
+      </React.Fragment>)
+  }
+
   return (
     <div className="App">
-      Massa Node status:
-      {nodeStatus ? JSON.stringify(nodeStatus, null, 2) : "Network status unavailable"}
+      <header className="App-header">
+        <img src={massa} className="App-logo" alt="logo"/>
+        {getNodeOverview(nodeStatus)}
+      </header>
     </div>
   );
 }
