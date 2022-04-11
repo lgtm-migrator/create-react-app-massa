@@ -1,5 +1,5 @@
 {
-  "name": "create-react-app-massa",
+  "name": "@massalabs/create-react-app-massa",
   "version": "1.0.0",
   "target": "esnext",
   "description": "massa's create-react-app template",
@@ -35,7 +35,7 @@
     "events": "^3.3.0",
     "https-browserify": "^1.0.0",
     "madge": "^5.0.1",
-    "massa-web3": "^1.5.0",
+    "@massalabs/massa-web3": "^1.6.0",
     "os-browserify": "^0.3.0",
     "path": "^0.12.7",
     "process": "^0.11.10",
