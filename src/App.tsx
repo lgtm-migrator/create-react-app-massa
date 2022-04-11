@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import massa from './massa_logo.png'
-import {ClientFactory, INodeStatus, IAccount, DefaultProviderUrls} from "massa-web3";
+import {ClientFactory, INodeStatus, IAccount, DefaultProviderUrls} from "@massalabs/massa-web3";
 
 const baseAccount = {
   publicKey: "5Jwx18K2JXacFoZcPmTWKFgdG1mSdkpBAUnwiyEqsVP9LKyNxR",
