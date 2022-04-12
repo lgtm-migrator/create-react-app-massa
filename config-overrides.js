@@ -19,6 +19,9 @@ module.exports = function override(config) {
         "events": require.resolve("events")
     })
     config.resolve.fallback = fallback;
+    config.resolve.alias = {
+        "stream": require.resolve("readable-stream"),
+    }
     config.plugins = (config.plugins || []).concat([
         new webpack.ProvidePlugin({
             process: 'process/browser',
