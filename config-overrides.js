@@ -21,6 +21,7 @@ module.exports = function override(config) {
     config.resolve.fallback = fallback;
     config.resolve.alias = {
         "stream": require.resolve("readable-stream"),
+        "crypto": require.resolve("crypto-browserify")
     }
     config.plugins = (config.plugins || []).concat([
         new webpack.ProvidePlugin({
