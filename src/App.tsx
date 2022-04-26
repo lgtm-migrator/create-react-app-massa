@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import massa from './massa_logo.png'
 import {ClientFactory, INodeStatus, IAccount, DefaultProviderUrls} from "@massalabs/massa-web3";
+import MassaContext from './context';
+import MassaButton from './MassaButton';
 
 const baseAccount = {
   publicKey: "5Jwx18K2JXacFoZcPmTWKFgdG1mSdkpBAUnwiyEqsVP9LKyNxR",
@@ -54,6 +56,9 @@ function App() {
         <img src={massa} className="App-logo" alt="logo"/>
         {getNodeOverview(nodeStatus)}
       </header>
+      <MassaContext.Provider value={null}>
+        <MassaButton />
+      </MassaContext.Provider>
     </div>
   );
 }
