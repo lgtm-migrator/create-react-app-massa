@@ -52,12 +52,12 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={massa} className="App-logo" alt="logo"/>
-        {getNodeOverview(nodeStatus)}
-      </header>
       <MassaContext.Provider value={null}>
-        <MassaButton />
+        <header className="App-header">
+          <img src={massa} className="App-logo" alt="logo"/>
+          {getNodeOverview(nodeStatus)}
+          <MassaButton />
+        </header>
       </MassaContext.Provider>
     </div>
   );

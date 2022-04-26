@@ -1,9 +1,10 @@
+import { waitWithTimeout } from ".";
 import * as constants from "./constants";
 import { MassaProvider } from "./types";
 
 declare global {
   interface Window {
-      massa: Object;
+      massa: MassaProvider;
   }
 }
 
@@ -37,14 +38,14 @@ export default class MassaPlugin {
 
   static hasWeb3(): boolean {
     const hasWeb3 = typeof window !== "undefined" && typeof window.massa !== "undefined";
-    console.log("hasWeb3 ", window.massa);
     return (
       hasWeb3
     );
   }
 
   static async getWeb3(): Promise<MassaProvider> {
-    console.log("getWeb3", window.massa)
+    // await the window.massa script to be injected!
+    await waitWithTimeout(3000);
     if (window.massa) {
       return window.massa as MassaProvider;
     } else {

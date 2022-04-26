@@ -15,6 +15,13 @@ export async function withTimeoutRejection(promise: Promise<MassaPlugin>, timeou
     return Promise.race([promise, sleep]);
 }
 
+export async function waitWithTimeout(milliseconds: number):  Promise<void> {
+    const sleep = new Promise<void>((resolve, reject) =>
+      setTimeout(() => resolve(), milliseconds),
+    );
+    await sleep;
+}
+
 
 // props
 export interface IProps {
@@ -65,7 +72,7 @@ export function createMassaContext(initial: IContext | null) {
         };
 
         // private class vars
-        private watcher: any = null; // timer created with `setTimeout`
+        private watcher: NodeJS.Timeout | null = null; // timer created with `setTimeout`
         private massa: MassaPlugin | null = null;
 
         constructor(props: IProps) {
@@ -88,13 +95,10 @@ export function createMassaContext(initial: IContext | null) {
 
         shouldComponentUpdate(nextProps: IProps, nextState: IState): boolean {
             if (this.state.awaiting !== nextState.awaiting) {
-                console.log("shouldComponentUpdate::awaiting", this.state, nextState)
                 return true;
             } else if (this.state.web3 !== nextState.web3) {
-                console.log("shouldComponentUpdate::web3", this.state, nextState)
                 return true;
             } else if (this.state.error !== nextState.error) {
-                console.log("shouldComponentUpdate::error", this.state, nextState)
                 return true;
             } else {
                 return false;
@@ -108,7 +112,6 @@ export function createMassaContext(initial: IContext | null) {
         }
 
         handleWatch = async () => {
-            console.log("handleWatch 1", this.state);
             // if there is an already existing watcher, clear it
             if (this.watcher) {
               clearTimeout(this.watcher);
@@ -118,7 +121,6 @@ export function createMassaContext(initial: IContext | null) {
             if (!this.state.web3) {
               this.setState({ awaiting: true });
             }
-            console.log("handleWatch 2", this.state);
       
             let error = this.state.error;
             let web3 = null;

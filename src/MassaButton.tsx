@@ -1,7 +1,10 @@
 import React, { useContext } from "react";
+import './App.css';
 import MassaContext from "./context";
 import { IContext } from "./massaPlugin";
 import { NOT_INSTALLED } from "./massaPlugin/constants";
+
+const MASSA_PLUGIN_VERISON = "v1.0"; // TODO: must come from the library
 
 export default function MassaButton() {
   const { web3, error, awaiting, openMassa }: IContext = useContext(
@@ -9,7 +12,7 @@ export default function MassaButton() {
   ) as IContext;
 
   function handleButtonClick() {
-    alert(`Web3 (${web3}) is enabled`); // eslint-disable-line no-alert
+    alert(`Massa Web3 is enabled. Version ${MASSA_PLUGIN_VERISON}`); // eslint-disable-line no-alert
   }
 
   if (error && error.message === NOT_INSTALLED) {
@@ -20,26 +23,26 @@ export default function MassaButton() {
     );
   } else if (error) {
     return (
-      <button type="button" onClick={openMassa}>
+      <button className="massa-button" type="button" onClick={openMassa}>
         {error.message}
       </button>
     );
   } else if (!web3 && awaiting) {
     return (
-      <button type="button" onClick={openMassa}>
+      <button className="massa-button" type="button" onClick={openMassa}>
         Massa Plugin loading...
       </button>
     );
   } else if (!web3) {
     return (
-      <button type="button" onClick={openMassa}>
-        Please open and allow Massa Plugin
+      <button className="massa-button" type="button" onClick={openMassa}>
+        Please open and allow Massa Plugin (TODO???)
       </button>
     );
   } else {
     return (
-      <button type="button" onClick={handleButtonClick}>
-          PLUGIN READY
+      <button className="massa-button" type="button" onClick={handleButtonClick}>
+          Plugin Ready 🚀
       </button>
     );
   }
