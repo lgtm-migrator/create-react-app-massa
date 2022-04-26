@@ -1,5 +1,3 @@
-
-
 export interface MassaProvider {
-    signContent: Function;
+    signContent: (bytes: any) => string;
 }
