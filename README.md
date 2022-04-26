@@ -44,3 +44,94 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+
+## Usage
+
+> The MassaPlugin context for React is **compatible with hooks!**
+
+The following sections describe the usage of Massa's plugin for ReactJS.
+
+### Example
+
+Create a file `context.ts` with the instantiation of Massa's Plugin Context:
+
+```js
+// context.ts
+import { createMassaContext } from "./massaPlugin";
+
+const MassaContext = createMassaContext(null);
+export default MassaContext;
+```
+
+Then make sure to render the `Provider` on the top entry file of your app:
+
+```js
+// App.js (_app.js if using Next.js)
+import React from "react";
+
+import MassaContext from "./context";
+
+export default function App() {
+  return (
+    <div>
+      <MassaContext.Provider value={null}>
+        ...
+      </MassaContext.Provider>
+    </div>
+  )
+}
+```
+
+### React Hooks
+
+When React Hooks are present, one could import the already created massa context which will resolve to a set of properties, one of which is the `web3` instance containing all major functionalities to interact with the Massa blockchain.
+
+```js
+// MyFunctionalComponent.js
+import React, { useContext } from "react";
+
+import MassaContext from "./context";
+
+export default function MyFunctionalComponent() {
+  const { web3, error, awaiting, openMassa } = useContext(
+    MassaContext,
+  );
+
+  useEffect(() => {
+    await web3.signContent(".....")
+  }, [web3]);
+
+```
+
+### HOC for React classes
+
+In case you are not using React Hooks and you need access to `web3` and the other params, you can use a High-Order-Component like this:
+
+```js
+// MyClassComponent.tsx
+import React, { Component } from "react";
+import { withMassaPlugin, PropTypesMassaObject } from "massaPlugin/index";
+
+import MassaContext from "./context";
+
+class MyClassComponent extends Component {
+  static propTypes = {
+    massa: PropTypesMassaObject.isRequired,
+  };
+
+  componentDidMount() {
+    const { web3, error, awaiting, openMassa } = this.props.massa;
+    if (web3) {
+      // ...
+    }
+  }
+
+  render() {
+    const { web3, error, awaiting, openMassa } = this.props.massa;
+    // ...
+  }
+}
+
+export default withMassaPlugin(MassaContext)(MyClassComponent);
+```
