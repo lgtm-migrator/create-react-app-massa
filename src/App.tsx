@@ -13,7 +13,7 @@ const baseAccount = {
 
 type TNodeStatus = INodeStatus | null;
 
-const web3Client = ClientFactory.createDefaultClient(DefaultProviderUrls.TESTNET, false, baseAccount);
+const web3Client = ClientFactory.createDefaultClient(DefaultProviderUrls.LABNET, false, baseAccount);
 
 function App() {
 
