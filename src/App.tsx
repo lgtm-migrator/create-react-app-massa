@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import massa from './massa_logo.png'
 import {ClientFactory, INodeStatus, IAccount, DefaultProviderUrls} from "@massalabs/massa-web3";
+import MassaContext from './context';
+import MassaButton from './MassaButton';
 
 const baseAccount = {
   publicKey: "5Jwx18K2JXacFoZcPmTWKFgdG1mSdkpBAUnwiyEqsVP9LKyNxR",
@@ -11,7 +13,7 @@ const baseAccount = {
 
 type TNodeStatus = INodeStatus | null;
 
-const web3Client = ClientFactory.createDefaultClient(DefaultProviderUrls.TESTNET, false, baseAccount);
+const web3Client = ClientFactory.createDefaultClient(DefaultProviderUrls.LABNET, false, baseAccount);
 
 function App() {
 
@@ -50,10 +52,13 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={massa} className="App-logo" alt="logo"/>
-        {getNodeOverview(nodeStatus)}
-      </header>
+      <MassaContext.Provider value={null}>
+        <header className="App-header">
+          <img src={massa} className="App-logo" alt="logo"/>
+          {getNodeOverview(nodeStatus)}
+          <MassaButton />
+        </header>
+      </MassaContext.Provider>
     </div>
   );
 }

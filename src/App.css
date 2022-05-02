@@ -24,6 +24,10 @@
   color: white;
 }
 
+.massa-button {
+  padding: 50;
+}
+
 .App-link {
   color: #61dafb;
 }
