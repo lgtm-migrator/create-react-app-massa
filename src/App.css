@@ -28,6 +28,14 @@
   padding: 50;
 }
 
+.text-field{
+  background-color: #283428;
+  color: rgb(46, 125, 136);
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+ }
+
 .App-link {
   color: #61dafb;
 }

@@ -11,8 +11,10 @@ import './uploader.css';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
 import type {} from '@mui/lab/themeAugmentation';
-import { baseAccount, web3Client } from "./w3/client";
+import { baseAccount, TNodeStatus, web3Client } from "./w3/client";
 import { IContractData } from "@massalabs/massa-web3";
+import TextField from '@mui/material/TextField';
+import useAsyncEffect from "./utils/asyncEffect";
 const _ = require('lodash');
 
 const MASSA_PLUGIN_VERSION = "v1.0"; // TODO: must come from the library
@@ -24,10 +26,43 @@ interface IProps {
   openMassa: any
 }
 
+interface IState {
+  txHash: string|undefined,
+  deploymentError: Error|undefined
+}
+
 const MassaDappCore: React.FunctionComponent<IProps> = ({web3, error, awaiting, openMassa}: IProps): JSX.Element => {
 
   const [wasmFile, setWasmFile] = useState<File|null>(null);
   const [dappReady, setDappReady] = useState<boolean>(false);
+  const [deploymentState, setDeploymentState] = useState<IState>({
+    deploymentError: undefined,
+    txHash: undefined,
+  });
+  const [nodeStatus, setNodeStatus] = useState<TNodeStatus>(null);
+
+  useAsyncEffect(async () => {
+    const nodeStatus = await web3Client.publicApi().getNodeStatus();
+    setNodeStatus(nodeStatus);
+  }, []);
+
+  const getNodeOverview = (nodeStatus?: TNodeStatus): JSX.Element => {
+    if (!nodeStatus) {
+      return <React.Fragment>"Getting Massa's Node Status..."</React.Fragment>;
+    }
+    return (<React.Fragment>
+      Massa Net Version: {nodeStatus?.version}
+      <br />
+      Massa Net Node Id: {nodeStatus?.node_id}
+      <br />
+      Massa Net Node Ip: {nodeStatus?.node_ip}
+      <br />
+      Massa Net Time:    {nodeStatus?.current_time}
+      <br />
+      Massa Net Cycle: {nodeStatus?.current_cycle}
+      <br />
+      </React.Fragment>)
+  }
 
   const onDeployWasm = async () => {
       if (wasmFile && dappReady) {
@@ -35,7 +70,6 @@ const MassaDappCore: React.FunctionComponent<IProps> = ({web3, error, awaiting, 
         const binaryArrayBuffer = await wasmFile.arrayBuffer();
         const binaryFileContents = new Uint8Array(binaryArrayBuffer);
         const contractDataBase64: string = Buffer.from(binaryFileContents).toString("base64");
-        
         try {
           const deployTxId = await web3Client.smartContracts().deploySmartContract({
             fee: 0,
@@ -47,8 +81,10 @@ const MassaDappCore: React.FunctionComponent<IProps> = ({web3, error, awaiting, 
           const deploymentOperationId = deployTxId[0];
           toast(`Wasm contract successfully deployed`);
           console.log(deploymentOperationId);
+          setDeploymentState({...deploymentState, txHash: deploymentOperationId});
         } catch (err) {
           console.error(err);
+          setDeploymentState({...deploymentState, deploymentError: error as Error});
         }
       }
   };
@@ -73,6 +109,7 @@ const MassaDappCore: React.FunctionComponent<IProps> = ({web3, error, awaiting, 
     return (
       <React.Fragment>
         <ToastContainer />
+        {getNodeOverview(nodeStatus)}
         <FileDrop
               onDrop={(files: FileList|null, event: React.DragEvent<HTMLDivElement>) => {
                 const loadedFile: File|null = files && files.length > 0 ? files[0] : null;
@@ -82,7 +119,23 @@ const MassaDappCore: React.FunctionComponent<IProps> = ({web3, error, awaiting, 
           >
             { wasmFile ? `Uploaded wasm file: ${wasmFile.name}` : "Drop your wasm dapp file here!" }
         </FileDrop>
-        <LoadingButton className="massa-button" variant="contained" color="primary" onClick={onDeployWasm}>Deploy wasm</LoadingButton>
+        <LoadingButton className="massa-button"
+                      variant="contained" 
+                      color="primary" 
+                      onClick={onDeployWasm}
+                      disabled={!(wasmFile && dappReady)}>
+                        Deploy wasm
+        </LoadingButton>
+        <TextField
+          id="op-id"
+          type="text"
+          label="Operation Id"
+          value={deploymentState.txHash || deploymentState.deploymentError?.message || ""}
+          margin="normal"
+          fullWidth
+          disabled
+          className="text-field"
+        />
       </React.Fragment>
     );
   }
