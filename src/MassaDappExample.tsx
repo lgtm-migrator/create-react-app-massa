@@ -9,21 +9,49 @@ import { Web3 } from "./massaPlugin/MassaPlugin";
 import { FileDrop } from 'react-file-drop';
 import './uploader.css';
 import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
+import type {} from '@mui/lab/themeAugmentation';
+import { baseAccount, web3Client } from "./w3/client";
+import { IContractData } from "@massalabs/massa-web3";
 const _ = require('lodash');
 
 const MASSA_PLUGIN_VERSION = "v1.0"; // TODO: must come from the library
 
-export interface IProps {
+interface IProps {
   web3: Web3|null,
-  error: any,
+  error: Error|null,
   awaiting: boolean,
   openMassa: any
 }
 
 const MassaDappCore: React.FunctionComponent<IProps> = ({web3, error, awaiting, openMassa}: IProps): JSX.Element => {
 
-  const [wasmFile, setWasmFile] = useState<any>(null);
+  const [wasmFile, setWasmFile] = useState<File|null>(null);
   const [dappReady, setDappReady] = useState<boolean>(false);
+
+  const onDeployWasm = async () => {
+      if (wasmFile && dappReady) {
+        toast(`Deploying wasm...`);
+        const binaryArrayBuffer = await wasmFile.arrayBuffer();
+        const binaryFileContents = new Uint8Array(binaryArrayBuffer);
+        const contractDataBase64: string = Buffer.from(binaryFileContents).toString("base64");
+        
+        try {
+          const deployTxId = await web3Client.smartContracts().deploySmartContract({
+            fee: 0,
+            maxGas: 200000,
+            gasPrice: 0,
+            coins: 0,
+            contractDataBase64
+          } as IContractData, baseAccount);
+          const deploymentOperationId = deployTxId[0];
+          toast(`Wasm contract successfully deployed`);
+          console.log(deploymentOperationId);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+  };
   
   if (error && error.message === NOT_INSTALLED) {
     return (
@@ -46,16 +74,15 @@ const MassaDappCore: React.FunctionComponent<IProps> = ({web3, error, awaiting, 
       <React.Fragment>
         <ToastContainer />
         <FileDrop
-              onDrop={(files, event) => {
-                console.log('onDrop!', files, event);
-                const loadedFile = files && files.length > 0 ? files[0].name : null;
+              onDrop={(files: FileList|null, event: React.DragEvent<HTMLDivElement>) => {
+                const loadedFile: File|null = files && files.length > 0 ? files[0] : null;
                 console.log("Loaded File ", loadedFile);
                 setWasmFile(loadedFile);
               }}
           >
-            { wasmFile ? `Uploaded wasm file: ${wasmFile}` : "Click or Drop your wasm dapp file here!" }
+            { wasmFile ? `Uploaded wasm file: ${wasmFile.name}` : "Drop your wasm dapp file here!" }
         </FileDrop>
-        <Button variant="contained">Deploy app</Button>
+        <LoadingButton className="massa-button" variant="contained" color="primary" onClick={onDeployWasm}>Deploy wasm</LoadingButton>
       </React.Fragment>
     );
   }
@@ -66,16 +93,12 @@ export default function MassaDappExample() {
     MassaContext,
   ) as IContext;
 
-  const _web3 = React.useMemo(() => {
-    return web3
-  }, [web3]);
-
   const onOpenMassa = React.useCallback(
     (e: any) => openMassa(e),
     [openMassa]
   );
 
-  return <MemoizedMassaDappCore web3={_web3} error={error} awaiting={awaiting} openMassa={onOpenMassa}/>
+  return <MemoizedMassaDappCore web3={web3} error={error} awaiting={awaiting} openMassa={onOpenMassa}/>
 }
 
 const MemoizedMassaDappCore = React.memo(MassaDappCore, (prevProps: Readonly<IProps>, nextProps: Readonly<IProps>): boolean => {

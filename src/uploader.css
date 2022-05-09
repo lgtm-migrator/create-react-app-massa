@@ -1,6 +1,6 @@
 /* Demo.css */
 
-.file-drop {
+  .file-drop {
     /* relatively position the container bc the contents are absolute */
     position: relative;
     height: 100px;
