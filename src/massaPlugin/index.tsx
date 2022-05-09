@@ -105,6 +105,14 @@ export function createMassaContext(initial: IContext | null) {
             }
         }
 
+        // eslint-disable-next-line camelcase
+        UNSAFE_componentWillReceiveProps(nextProps: IProps) {
+          if (this.watcher) {
+            // nextProps.immediate is false so stop timeout (if present).
+            clearTimeout(this.watcher);
+          }
+        }
+
         componentWillUnmount(): void {
             if (this.watcher) {
               clearTimeout(this.watcher);

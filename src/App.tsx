@@ -1,35 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import massa from './massa_logo.png'
-import {ClientFactory, INodeStatus, IAccount, DefaultProviderUrls} from "@massalabs/massa-web3";
 import MassaContext from './context';
-import MassaButton from './MassaButton';
+import MassaDappExample from './MassaDappExample';
+import { TNodeStatus, web3Client } from './w3/client';
+import useAsyncEffect from './utils/asyncEffect';
 
-const baseAccount = {
-  publicKey: "5Jwx18K2JXacFoZcPmTWKFgdG1mSdkpBAUnwiyEqsVP9LKyNxR",
-  privateKey: "2SPTTLK6Vgk5zmZEkokqC3wgpKgKpyV5Pu3uncEGawoGyd4yzC",
-  address: "9mvJfA4761u1qT8QwSWcJ4gTDaFP5iSgjQzKMaqTbrWCFo1QM"
-} as IAccount;
-
-type TNodeStatus = INodeStatus | null;
-
-const web3Client = ClientFactory.createDefaultClient(DefaultProviderUrls.LABNET, false, baseAccount);
-
-function App() {
-
+const App: React.FC = () => {
   const [nodeStatus, setNodeStatus] = useState<TNodeStatus>(null);
 
-  const getNodeStatusAsync = async () => {
-    try {
-      const nodeStatus: INodeStatus = await web3Client.publicApi().getNodeStatus();
-      setNodeStatus(nodeStatus);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    getNodeStatusAsync();
+  useAsyncEffect(async () => {
+    const nodeStatus = await web3Client.publicApi().getNodeStatus();
+    setNodeStatus(nodeStatus);
   }, []);
 
   const getNodeOverview = (nodeStatus?: TNodeStatus): JSX.Element => {
@@ -56,7 +38,7 @@ function App() {
         <header className="App-header">
           <img src={massa} className="App-logo" alt="logo"/>
           {getNodeOverview(nodeStatus)}
-          <MassaButton />
+          <MassaDappExample />
         </header>
       </MassaContext.Provider>
     </div>
