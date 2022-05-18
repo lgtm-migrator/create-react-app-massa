@@ -112,9 +112,9 @@ const MassaDappCore: React.FunctionComponent<IProps> = ({web3, accounts, error, 
   } else if (!web3 && awaiting) {
     return <Button className="massa-button" variant="contained" onClick={openMassa}>Massa Plugin loading...</Button>
   } else if (!web3) {
-    return <Button className="massa-button" variant="contained" onClick={openMassa}>Please open and allow Massa Plugin</Button>
+    return <Button className="massa-button" variant="contained" onClick={openMassa}>Please install and enable Massa Plugin</Button>
   } else if (accounts.length === 0) {
-    return <Button className="massa-button" variant="contained" onClick={openMassa}>No Wallet</Button>
+    return <Button className="massa-button" variant="contained" onClick={openMassa}>No Wallet. Please add accounts to your wallet</Button>
   } else {
     if (!dappReady) {
       toast(`Massa Web3 is enabled 🚀. Version ${web3.massaProvider.version}`);
@@ -124,6 +124,11 @@ const MassaDappCore: React.FunctionComponent<IProps> = ({web3, accounts, error, 
       <React.Fragment>
         <ToastContainer />
         {getNodeOverview(nodeStatus)}
+        <>
+          Wallet Accounts: {accounts.map((value, index) => {
+            return <div key={index}>Address: {value.address}, Balance: {value["final_sce_ledger_info"].balance}</div>
+          })}
+        </>
         <FileDrop
               onDrop={(files: FileList|null, event: React.DragEvent<HTMLDivElement>) => {
                 const loadedFile: File|null = files && files.length > 0 ? files[0] : null;
@@ -181,5 +186,5 @@ export default function MassaDappExample() {
 }
 
 const MemoizedMassaDappCore = React.memo(MassaDappCore, (prevProps: Readonly<IProps>, nextProps: Readonly<IProps>): boolean => {
-  return isEqual(prevProps.web3, nextProps.web3) && isEqual(sortBy(prevProps.accounts), sortBy(nextProps.accounts));
+  return isEqual(prevProps.web3, nextProps.web3) && isEqual(prevProps.accounts.length, nextProps.accounts.length);
 });
