@@ -2,6 +2,7 @@ import { waitWithTimeout } from ".";
 import * as constants from "./constants";
 import { MassaProvider } from "./types";
 
+// window-injected massa global objects
 declare global {
   interface Window {
       massa: MassaProvider;
@@ -47,7 +48,14 @@ export default class MassaPlugin {
     // await the window.massa script to be injected!
     await waitWithTimeout(3000);
     if (window.massa) {
-      return window.massa as MassaProvider;
+      // enable massa
+      window.massa.enable(true);
+      const { enable, version, enabled } = window.massa;
+      return { enable,
+              version,
+              enabled,
+              contractWrapper: window.massa.contractWrapper,
+              walletWrapper: window.massa.walletWrapper } as MassaProvider;
     } else {
       throw new Error(constants.NOT_INSTALLED);
     }

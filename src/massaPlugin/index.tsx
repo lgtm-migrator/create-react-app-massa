@@ -2,9 +2,15 @@ import React from 'react';
 import { Component } from 'react';
 import PropTypes from "prop-types";
 import MassaPlugin, { Web3 } from './MassaPlugin';
-import { NOT_INSTALLED, TIMEOUT } from './constants';
+import { DISABLED, NOT_INSTALLED, TIMEOUT } from './constants';
+import isEqual from "lodash/isEqual";
+import sortBy from "lodash/sortBy";
 
-function getDisplayName(WrappedComponent: any) {
+const isEqualArray = (array1: Array<any>, array2: Array<any>): boolean => {
+  return isEqual(sortBy(array1), sortBy(array2));
+}
+
+const getDisplayName = (WrappedComponent: any) => {
     return WrappedComponent.displayName || WrappedComponent.name || "Component";
 }
 
@@ -22,7 +28,6 @@ export async function waitWithTimeout(milliseconds: number):  Promise<void> {
     await sleep;
 }
 
-
 // props
 export interface IProps {
     value: any;
@@ -34,6 +39,7 @@ export interface IProps {
 // state
 export interface IState {
     awaiting: boolean;
+    accounts: Array<any>,
     error: Error | null;
     web3: Web3 | null;
     openMassa: (e: any) => any;
@@ -42,6 +48,7 @@ export interface IState {
 // context (same as IState)
 export interface IContext {
     awaiting: boolean;
+    accounts: Array<any>,
     error: Error | null;
     web3: Web3 | null;
     openMassa: (e: any) => any;
@@ -82,6 +89,7 @@ export function createMassaContext(initial: IContext | null) {
                 web3: null,
                 awaiting: false,
                 error: null,
+                accounts: [],
                 ...props.value,
             }
         }
@@ -99,6 +107,8 @@ export function createMassaContext(initial: IContext | null) {
             } else if (this.state.web3 !== nextState.web3) {
                 return true;
             } else if (this.state.error !== nextState.error) {
+                return true;
+            } else if (!isEqualArray(this.state.accounts, nextState.accounts)) {
                 return true;
             } else {
                 return false;
@@ -126,15 +136,18 @@ export function createMassaContext(initial: IContext | null) {
             }
       
             // if no web3, set it to awaiting
-            if (!this.state.web3) {
+            if (!this.state.web3 || !this.state.accounts.length) {
               this.setState({ awaiting: true });
             }
       
-            let error = this.state.error;
-            let web3 = null;
+            let error: Error|null = this.state.error;
+            let web3: Web3|null = null;
+            let accounts = [];
+
             try {
-            // in case of no MassaPlugin, try to load it again
-              if (!this.massa) {
+              const isDisabled = error && error.message === DISABLED;
+            // in case of no MassaPlugin or a disabled one, try to load it again
+              if (!this.massa || isDisabled) {
                 this.massa = (await withTimeoutRejection(
                     MassaPlugin.initialize(this.props.options),
                   this.props.timeout,
@@ -142,6 +155,8 @@ export function createMassaContext(initial: IContext | null) {
               }
               // get the underlying web3 instance
               web3 = await this.massa.getWeb3();
+              const addedAccounts = await web3.massaProvider.walletWrapper.walletInfo();
+              accounts.push(...addedAccounts);
               // set the error to null
               error = null;
             } catch (err: any) {
@@ -154,7 +169,7 @@ export function createMassaContext(initial: IContext | null) {
             }
       
             // set current state
-            const nextState = { web3: web3, error: error, awaiting: false };
+            const nextState = { web3: web3, accounts: accounts, error: error, awaiting: false };
             this.setState(nextState);
             return nextState;
         };
@@ -165,6 +180,7 @@ export function createMassaContext(initial: IContext | null) {
 
             const internalValue = {
               web3: this.state.web3,
+              accounts: this.state.accounts,
               error: this.state.error,
               awaiting: this.state.awaiting,
               openMassa: this.handleWatch,
@@ -194,6 +210,7 @@ export const withMassaPlugin = (MassaContext: React.Context<IContext>) => {
 
 export const PropTypesMassa= {
     web3: PropTypes.object,
+    accounts: PropTypes.arrayOf(PropTypes.any).isRequired,
     error: PropTypes.object, // `Error` type
     awaiting: PropTypes.bool.isRequired,
     openMassa: PropTypes.func.isRequired,
