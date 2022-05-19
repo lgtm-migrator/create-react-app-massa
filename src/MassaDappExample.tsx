@@ -91,7 +91,7 @@ const MassaDappCore: React.FunctionComponent<IProps> = ({web3, accounts, error, 
           }
           toast(`Wasm contract successfully deployed`);
           console.log(deploymentOperationId);
-          setDeploymentState({...deploymentState, txHash: deploymentOperationId});
+          setDeploymentState({...deploymentState, txHash: deploymentOperationId[0]});
         } catch (err) {
           console.error(err);
           setDeploymentState({...deploymentState, deploymentError: error as Error});
