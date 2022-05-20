@@ -48,9 +48,14 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## Usage
 
-> The MassaPlugin context for React is **compatible with hooks!**
+> The MassaPlugin context for React is **compatible with hooks! and class-based Components**.
 
-The following sections describe the usage of Massa's plugin for ReactJS.
+This skeleton project has a demo dApp inside which is a subject of having the massa wallet browser extension installed from here [Massa Wallet](https://github.com/massalabs/massa-wallet.git).
+
+and the `create-react-wallet` npm package as a dependency from [Create React Wallet](https://github.com/massalabs/create-react-wallet.git).
+
+
+The following sections describe the usage of Massa's ReactJS skeleton for dApps.
 
 ### Example
 
@@ -58,9 +63,10 @@ Create a file `context.ts` with the instantiation of Massa's Plugin Context:
 
 ```js
 // context.ts
-import { createMassaContext } from "./massaPlugin";
+import { createMassaContext } from "@massalabs/massa-react-wallet";
 
 const MassaContext = createMassaContext(null);
+
 export default MassaContext;
 ```
 
@@ -69,13 +75,13 @@ Then make sure to render the `Provider` on the top entry file of your app:
 ```js
 // App.js (_app.js if using Next.js)
 import React from "react";
-
+import { IContext } from '@massalabs/massa-react-wallet';
 import MassaContext from "./context";
 
 export default function App() {
   return (
     <div>
-      <MassaContext.Provider value={null}>
+      <MassaContext.Provider value={{} as IContext}>
         ...
       </MassaContext.Provider>
     </div>
@@ -91,6 +97,7 @@ When React Hooks are present, one could import the already created massa context
 // MyFunctionalComponent.js
 import React, { useContext } from "react";
 
+import useAsyncEffect from "./utils/asyncEffect";
 import MassaContext from "./context";
 
 export default function MyFunctionalComponent() {
@@ -99,7 +106,7 @@ export default function MyFunctionalComponent() {
   );
 
   useEffect(() => {
-    await web3.signContent(".....")
+    await web3.massaProvider.subspace
   }, [web3]);
 
 ```
@@ -111,7 +118,7 @@ In case you are not using React Hooks and you need access to `web3` and the othe
 ```js
 // MyClassComponent.tsx
 import React, { Component } from "react";
-import { withMassaPlugin, PropTypesMassaObject } from "massaPlugin/index";
+import { withMassaPlugin, PropTypesMassaObject } from "@massalabs/massa-react-wallet";
 
 import MassaContext from "./context";
 
@@ -121,17 +128,38 @@ class MyClassComponent extends Component {
   };
 
   componentDidMount() {
-    const { web3, error, awaiting, openMassa } = this.props.massa;
+    const { web3, accounts, error, awaiting, openMassa } = this.props.massa;
     if (web3) {
       // ...
     }
   }
 
   render() {
-    const { web3, error, awaiting, openMassa } = this.props.massa;
+    const { web3, accounts, error, awaiting, openMassa } = this.props.massa;
     // ...
   }
 }
 
 export default withMassaPlugin(MassaContext)(MyClassComponent);
 ```
+
+### Injected Massa Web3
+
+The injected over the provider value Massa Web3 has the following properties shown below:
+
+```js
+export interface MassaProvider {
+    enable: (toggle: boolean) => void;
+    version: string;
+    enabled: boolean;
+    contractWrapper: IContractWrapper;
+    walletWrapper: IWalletWrapper;
+    publicWrapper: IPublicWrapper;
+}
+```
+
+The subspaces represent grouped functionalities related to smartContracts, wallet and public json-rpc points. Please note that some of the injected methods will call the wallet extension to open and wait for a user input.
+
+If a dApp is developed whereby one is not tempted to use the Massa browser extension wallet, the React project integrates well with the [Massa Web3](https://github.com/massalabs/massa-web3) npm package that is already included as a dependency.
+ 
+

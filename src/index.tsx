@@ -1,15 +1,15 @@
-import React from 'react';
 import ReactDOM from "react-dom/client";
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { StyledEngineProvider } from '@mui/material/styles';
 
 const container: HTMLElement | null = document.getElementById('root');
 const root = ReactDOM.createRoot(container as Element);
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <StyledEngineProvider injectFirst>
+        <App />
+    </StyledEngineProvider>,
 );
 
 // If you want to start measuring performance in your app, pass a function
