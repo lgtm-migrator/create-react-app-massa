@@ -1,13 +1,11 @@
 import React, { useContext, useState, useRef } from "react";
 import './App.css';
 import MassaContext from "./context";
-import { IContext } from "./massaPlugin";
-import { DISABLED, NOT_INSTALLED } from "./massaPlugin/constants";
+import { IContext } from "@massalabs/massa-react-wallet";
+import { errors as MassaWalletErrors } from "@massalabs/massa-react-wallet";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Web3 } from "./massaPlugin/MassaPlugin";
 import { FileDrop } from 'react-file-drop';
-import './uploader.css';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
 import type {} from '@mui/lab/themeAugmentation';
@@ -16,22 +14,13 @@ import { IContractData } from "@massalabs/massa-web3";
 import TextField from '@mui/material/TextField';
 import useAsyncEffect from "./utils/asyncEffect";
 import isEqual from "lodash/isEqual";
-import sortBy from "lodash/sortBy";
-
-interface IProps {
-  web3: Web3|null,
-  accounts: Array<any>,
-  error: Error|null,
-  awaiting: boolean,
-  openMassa: any
-}
 
 interface IState {
   txHash: string|undefined,
   deploymentError: Error|undefined
 }
 
-const MassaDappCore: React.FunctionComponent<IProps> = ({web3, accounts, error, awaiting, openMassa}: IProps): JSX.Element => {
+const MassaDappCore: React.FunctionComponent<IContext> = ({web3, accounts, error, awaiting, openMassa}: IContext): JSX.Element => {
 
   const fileInputRef = useRef(null);
   const [wasmFile, setWasmFile] = useState<File|null>(null);
@@ -99,13 +88,13 @@ const MassaDappCore: React.FunctionComponent<IProps> = ({web3, accounts, error, 
       }
   };
   
-  if (error && error.message === NOT_INSTALLED) {
+  if (error && error.message === MassaWalletErrors.NOT_INSTALLED) {
     return (
       <a href="https://massa.net/" target="_blank" rel="noopener noreferrer">
         Install Massa Browser Plugin
       </a>
     );
-  } else if (error && error.message === DISABLED) {
+  } else if (error && error.message === MassaWalletErrors.DISABLED) {
     return <Button className="massa-button" variant="contained" onClick={openMassa}>Enable Massa Plugin</Button>
   } else if (error) {
     return <Button className="massa-button" type="button" onClick={openMassa}>{error.message}</Button>
@@ -185,6 +174,6 @@ export default function MassaDappExample() {
   return <MemoizedMassaDappCore web3={web3} accounts={accounts} error={error} awaiting={awaiting} openMassa={onOpenMassa}/>
 }
 
-const MemoizedMassaDappCore = React.memo(MassaDappCore, (prevProps: Readonly<IProps>, nextProps: Readonly<IProps>): boolean => {
+const MemoizedMassaDappCore = React.memo(MassaDappCore, (prevProps: Readonly<IContext>, nextProps: Readonly<IContext>): boolean => {
   return isEqual(prevProps.web3, nextProps.web3) && isEqual(prevProps.accounts.length, nextProps.accounts.length);
 });
