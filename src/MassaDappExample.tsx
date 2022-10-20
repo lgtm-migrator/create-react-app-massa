@@ -104,7 +104,7 @@ export const MassaDappCore: React.FunctionComponent<IProps> = (): JSX.Element =>
               (fileInputRef.current as any).click();
             }}
         >
-          { wasmFile ? `Uploaded wasm file: ${wasmFile.name}` : "Drop or select your wasm dapp file here!" }
+          { wasmFile ? `Uploaded wasm file: ${wasmFile.name}` : "Drop or select your smart contract wasm file here!" }
       </FileDrop>
       <input
         onChange={(event) => {
@@ -121,7 +121,7 @@ export const MassaDappCore: React.FunctionComponent<IProps> = (): JSX.Element =>
                     color="primary" 
                     onClick={onDeployWasm}
                     disabled={!wasmFile}>
-                      Deploy wasm
+                      Deploy contract
       </LoadingButton>
       <TextField
         id="op-id"
