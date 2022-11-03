@@ -50,10 +50,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 > The MassaPlugin context for React is **compatible with hooks! and class-based Components**.
 
-This skeleton project has a demo dApp inside which is a subject of having the massa wallet browser extension installed from here [Massa Wallet](https://github.com/massalabs/massa-wallet.git).
-
-and the `create-react-wallet` npm package as a dependency from [Create React Wallet](https://github.com/massalabs/create-react-wallet.git).
-
+This skeleton project has a demo dApp inside.
 
 The following sections describe the usage of Massa's ReactJS skeleton for dApps.
 
